@@ -1,0 +1,73 @@
+name: Branch Name Check
+on:
+  create:
+  push:
+  pull_request:
+
+jobs:
+  check-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate branch name and source
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
+            BRANCH_NAME="$GITHUB_HEAD_REF"
+          else
+            BRANCH_NAME="$GITHUB_REF_NAME"
+          fi
+
+          if [[ "$BRANCH_NAME" == "develop" || "$BRANCH_NAME" == "main" ]]; then
+            echo "ℹ️ Ветка $BRANCH_NAME не требует проверки"
+            exit 0
+          fi
+
+          FEATURE_PATTERN="^feature/QW-[0-9]+-[a-z0-9-]+$"
+          RELEASE_PATTERN="^release/[0-9]+\.[0-9]+\.[0-9]+$"
+          FIX_PATTERN="^fix/QW-[0-9]+-[a-z0-9-]+$"
+
+          ERROR_MSG="❌ Неверный формат ветки или источник! Требования:
+          1. Feature: feature/QW-<id>-<описание> (например, feature/QW-123-user-profile)
+             - Ответвляется от develop или main
+          2. Release: release/<версия> (например, release/1.3.0)
+             - Ответвляется от develop или main
+          3. Fix: fix/QW-<id>-<описание> (например, fix/QW-456-login-security)
+             - Ответвляется от develop или main
+          Имя ветки: $BRANCH_NAME"
+
+          if [[ "$BRANCH_NAME" =~ $FEATURE_PATTERN ]]; then
+            echo "🔍 Ветка $BRANCH_NAME — feature"
+            EXPECTED_SOURCE="develop|main"
+          elif [[ "$BRANCH_NAME" =~ $RELEASE_PATTERN ]]; then
+            echo "🔍 Ветка $BRANCH_NAME — release"
+            EXPECTED_SOURCE="develop|main"
+          elif [[ "$BRANCH_NAME" =~ $FIX_PATTERN ]]; then
+            echo "🔍 Ветка $BRANCH_NAME — fix"
+            EXPECTED_SOURCE="develop|main"
+          else
+            echo "$ERROR_MSG"
+            echo "❌ Ветка не соответствует ни одному шаблону"
+            exit 1
+          fi
+
+          SOURCE_BRANCH=$(git merge-base --fork-point origin/develop "$BRANCH_NAME" 2>/dev/null || git merge-base --fork-point origin/main "$BRANCH_NAME" 2>/dev/null)
+          if [ -z "$SOURCE_BRANCH" ]; then
+            echo "$ERROR_MSG"
+            echo "❌ Не удалось определить источник ветки $BRANCH_NAME"
+            exit 1
+          fi
+
+          if git merge-base --is-ancestor "$SOURCE_BRANCH" origin/develop 2>/dev/null; then
+            echo "✅ Ветка $BRANCH_NAME ответвлена от develop"
+          elif git merge-base --is-ancestor "$SOURCE_BRANCH" origin/main 2>/dev/null; then
+            echo "✅ Ветка $BRANCH_NAME ответвлена от main"
+          else
+            echo "$ERROR_MSG"
+            echo "❌ Ветка $BRANCH_NAME не ответвлена от develop или main"
+            exit 1
+          fi
+
+          echo "✅ Все проверки пройдены для ветки $BRANCH_NAME"
