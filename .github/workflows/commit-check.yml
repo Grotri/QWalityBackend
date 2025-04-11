@@ -1,33 +1,60 @@
-name: Conventional Commits Check (All Branches)
- on:
-   push:
-   pull_request:
- 
- jobs:
-   check-commits:
-     runs-on: ubuntu-latest
-     steps:
-       - uses: actions/checkout@v4
-         with:
-           fetch-depth: 0
- 
-       - name: Validate commit messages
-         run: |
-           PATTERN='^(chore|docs|feat|fix|refactor|revert|style|test)(\([a-z-]+\))?: [A-Z][a-zA-Z0-9 -]+(\n\n.*)?(\n\nFixes: [A-Z]+-[0-9]+)?$'
-           ERROR_MSG="❌ Invalid commit format! Use:\n<type>(<scope>): <Subject> (imperative mood)\n\n<body> (optional)\n\nFixes: TASK-123\n\nПример:\nfix(login): Resolve 500 error\n\nИз-за неправильной валидации...\n\nFixes: QW-45"
-           
-           if [ "$GITHUB_EVENT_NAME" = "push" ]; then
-             BASE_SHA=$(git rev-parse $GITHUB_REF~1)
-             HEAD_SHA=$(git rev-parse $GITHUB_SHA)
-           elif [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
-             BASE_SHA=$(git rev-parse $GITHUB_BASE_REF)
-             HEAD_SHA=$(git rev-parse $GITHUB_HEAD_REF)
-           fi
- 
-           git log --format=%B $BASE_SHA..$HEAD_SHA | while read -r line; do
-             if [ -n "$line" ] && [[ ! "$line" =~ ^# ]] && [[ ! "$line" =~ ^$PATTERN ]]; then
-               echo -e "$ERROR_MSG"
-               echo "Найден невалидный коммит: $line"
-               exit 1
-             fi
-           done
+name: Conventional Commits Check
+on: [push, pull_request]
+
+jobs:
+  check-commits:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate commit messages
+        run: |
+          TYPES="chore|docs|feat|fix|refactor|revert|style|test"
+          HEADER_PATTERN="^($TYPES)(\([a-z0-9-]+\))?:[[:space:]]*.+"
+          FOOTER_PATTERN="^Fixes:[[:space:]]*[A-Z]+-[0-9]+$"
+          
+          ERROR_MSG="❌ Неверный формат коммита! Требования:
+          1. Первая строка: <тип>(<область>): <описание>
+             Пример: 'fix: исправить баг' или 'feat(api): добавить метод'
+             Допускается: 'fix: fix regex'
+          2. Последняя строка: 'Fixes: QW-52' (обязательно)
+          3. Между ними может быть любой текст (игнорируется)"
+
+          if [ "$GITHUB_EVENT_NAME" = "push" ]; then
+            COMMIT_SHAS=$(git rev-list --no-merges $GITHUB_SHA^..$GITHUB_SHA)
+          else
+            COMMIT_SHAS=$(git rev-list --no-merges origin/$GITHUB_BASE_REF..$GITHUB_HEAD_REF)
+          fi
+
+          for sha in $COMMIT_SHAS; do
+            commit=$(git log -1 --format=%B "$sha")
+            echo "🔍 Проверяем коммит $sha:"
+            echo "---"
+            echo "$commit"
+            echo "---"
+            
+            cleaned_commit=$(echo "$commit" | sed '/^$/d')
+            first_line=$(echo "$cleaned_commit" | head -n 1)
+            last_line=$(echo "$cleaned_commit" | tail -n 1)
+            
+            if [ -z "$first_line" ] || [ -z "$last_line" ]; then
+              echo "❌ Ошибка: коммит пустой или не содержит ожидаемых строк"
+              echo "---"
+              echo "$commit"
+              echo "---"
+              echo "$ERROR_MSG"
+              exit 1
+            fi
+            
+            if ! [[ "$first_line" =~ $HEADER_PATTERN ]] || ! [[ "$last_line" =~ $FOOTER_PATTERN ]]; then
+              echo "❌ Ошибка в коммите $sha:"
+              echo "---"
+              echo "$commit"
+              echo "---"
+              echo "$ERROR_MSG"
+              exit 1
+            fi
+            echo "✅ Коммит $sha валиден"
+          done
