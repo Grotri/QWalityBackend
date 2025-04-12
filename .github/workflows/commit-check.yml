@@ -13,7 +13,7 @@ jobs:
         run: |
           TYPES="chore|docs|feat|fix|refactor|revert|style|test"
           HEADER_PATTERN="^($TYPES)(\([a-z0-9-]+\))?:[[:space:]]*.+"
-          FOOTER_PATTERN="^Fixes:[[:space:]]*[A-Z]+-[0-9]+$"
+          FOOTER_PATTERN="^[A-Z]+-[0-9]+$"
           
           ERROR_MSG="❌ Неверный формат коммита! Требования:
           1. Первая строка: <тип>(<область>): <описание>
