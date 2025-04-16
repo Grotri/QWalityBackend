@@ -63,6 +63,12 @@ jobs:
             first_line=$(echo "$cleaned_commit" | head -n 1)
             last_line=$(echo "$cleaned_commit" | tail -n 1)
             
+            # Пропускаем коммиты, начинающиеся с "Merge"
+            if [[ "$first_line" =~ ^Merge.* ]]; then
+              echo "ℹ️ Коммит $sha является merge-коммитом, пропускаем проверку"
+              continue
+            fi
+            
             if [ -z "$first_line" ] || [ -z "$last_line" ]; then
               echo "❌ Ошибка: коммит пустой или не содержит ожидаемых строк"
               echo "---"
