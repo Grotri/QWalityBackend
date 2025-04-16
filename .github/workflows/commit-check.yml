@@ -9,6 +9,9 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
       - name: Validate commit messages
         run: |
           TYPES="chore|docs|feat|fix|refactor|revert|style|test"
@@ -19,14 +22,35 @@ jobs:
           1. Первая строка: <тип>(<область>): <описание>
              Пример: 'fix: исправить баг' или 'feat(api): добавить метод'
              Допускается: 'fix: fix regex'
-          2. Последняя строка: 'Fixes: QW-52' (обязательно)
+          2. Последняя строка: 'QW-52' (обязательно)
           3. Между ними может быть любой текст (игнорируется)"
 
+          echo "🔍 Доступные ветки:"
+          git branch -r
+          echo "🔍 GITHUB_EVENT_NAME: $GITHUB_EVENT_NAME"
+          echo "🔍 GITHUB_BEFORE: $GITHUB_BEFORE"
+          echo "🔍 GITHUB_SHA: $GITHUB_SHA"
+
           if [ "$GITHUB_EVENT_NAME" = "push" ]; then
-            COMMIT_SHAS=$(git rev-list --no-merges $GITHUB_SHA^..$GITHUB_SHA)
+            COMMIT_SHAS=$(jq -r '.commits[].id' "$GITHUB_EVENT_PATH")
           else
-            COMMIT_SHAS=$(git rev-list --no-merges origin/$GITHUB_BASE_REF..$GITHUB_HEAD_REF)
+            echo "🔍 GITHUB_BASE_REF: $GITHUB_BASE_REF"
+            echo "🔍 GITHUB_HEAD_REF: $GITHUB_HEAD_REF"
+            git fetch origin $GITHUB_BASE_REF:refs/heads/$GITHUB_BASE_REF
+            git fetch origin $GITHUB_HEAD_REF:refs/heads/$GITHUB_HEAD_REF
+            echo "🔍 Локальные ветки после fetch:"
+            git branch
+            COMMIT_SHAS=$(git rev-list --no-merges refs/heads/$GITHUB_BASE_REF..refs/heads/$GITHUB_HEAD_REF)
           fi
+
+          if [ -z "$COMMIT_SHAS" ]; then
+            echo "ℹ️ Нет коммитов для проверки, пропускаем"
+            exit 0
+          fi
+
+          echo "🔍 Найдено коммитов для проверки: $(echo "$COMMIT_SHAS" | wc -l)"
+          echo "🔍 Список SHA коммитов:"
+          echo "$COMMIT_SHAS"
 
           for sha in $COMMIT_SHAS; do
             commit=$(git log -1 --format=%B "$sha")
@@ -48,6 +72,7 @@ jobs:
               exit 1
             fi
             
+            # Проверяем формат
             if ! [[ "$first_line" =~ $HEADER_PATTERN ]] || ! [[ "$last_line" =~ $FOOTER_PATTERN ]]; then
               echo "❌ Ошибка в коммите $sha:"
               echo "---"
