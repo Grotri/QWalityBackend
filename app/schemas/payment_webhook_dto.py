@@ -1,8 +1,8 @@
-from typing import Literal
-
 from pydantic import BaseModel
 
 
 class PaymentWebhookDTO(BaseModel):
-    payment_id: str
-    status: Literal["succeeded", "failed"]
+    MERCHANT_ID: str
+    AMOUNT: str
+    MERCHANT_ORDER_ID: str
+    SIGN: str

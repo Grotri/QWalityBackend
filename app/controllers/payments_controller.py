@@ -26,11 +26,19 @@ def create_payment_session():
         return jsonify({"error": str(e)}), 400
 
 
-@payments_bp.route("/webhook", methods=["POST"])
+@payments_bp.route("/webhook", methods=["POST", "GET"])
 def webhook():
     try:
-        data = PaymentWebhookDTO(**request.json)
-        HandlePaymentWebhookUseCase.execute(data.payment_id, data.status)
-        return jsonify({"message": "OK"}), 200
+        data = request.form or request.args  # может быть как POST, так и GET
+        parsed = PaymentWebhookDTO(**data)
+
+        HandlePaymentWebhookUseCase.execute(
+            merchant_id=parsed.MERCHANT_ID,
+            amount=parsed.AMOUNT,
+            order_id=parsed.MERCHANT_ORDER_ID,
+            sign=parsed.SIGN
+        )
+
+        return "YES", 200  # FreeKassa ждёт именно ответ "YES"
     except Exception as e:
         return jsonify({"error": str(e)}), 400
