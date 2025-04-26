@@ -1,8 +1,8 @@
-from datetime import datetime
-from app.utils.auth import get_current_user
+from app.extensions import db
 from app.models.payment import Payment
 from app.models.tariff import Tariff
-from app.extensions import db
+from app.services.freekassa_client import FreeKassaClient
+from app.utils.auth import get_current_user
 
 
 class CreatePaymentSessionUseCase:
@@ -16,23 +16,24 @@ class CreatePaymentSessionUseCase:
         if not tariff:
             raise ValueError("Tariff not found.")
 
-        # Здесь эмулируем внешний платёж
-        # В реальности — делаем запрос в YooMoney, получаем ссылку
-        fake_payment_id = f"pay_{datetime.utcnow().timestamp()}"
-        fake_payment_url = f"https://yoomoney.ru/payments/{fake_payment_id}"
+        client = FreeKassaClient()
+        payment_url = client.create_payment_url(
+            amount=tariff.price,
+            order_id=user.client_id,  # например, client_id используем как ID заказа
+            description=f"Оплата тарифа {tariff.name}"
+        )
 
         payment = Payment(
             client_id=user.client_id,
             tariff_id=tariff.id,
             amount=tariff.price,
             status="created",
-            payment_id=fake_payment_id
+            payment_id=None  # в FreeKassa мы получим ID позже в webhook-е
         )
         db.session.add(payment)
         db.session.commit()
 
         return {
-            "payment_id": payment.payment_id,
-            "amount": payment.amount,
-            "payment_url": fake_payment_url
+            "payment_url": payment_url,
+            "amount": tariff.price
         }
