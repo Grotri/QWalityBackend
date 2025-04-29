@@ -8,6 +8,7 @@ class Client(db.Model):
     email = db.Column(db.String(255), unique=True, nullable=False)
     tin = db.Column(db.String(20), unique=True, nullable=False)
     type = db.Column(db.String(20), nullable=False)  # legal person / individual
+    conf_threshold = db.Column(db.Float, default=0.25)
 
     # Relationships (опционально)
     users = db.relationship("User", backref="client", lazy=True)
