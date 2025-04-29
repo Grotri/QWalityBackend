@@ -11,7 +11,7 @@ class Camera(db.Model):
     preview_url = db.Column(db.String(255), nullable=True)
 
     client_id = db.Column(db.Integer, db.ForeignKey("client.id"), nullable=False)
-    status = db.Column(db.String(20), default="active")  # active, deleted
+    status = db.Column(db.String(20), default="active")  # active / deleted
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     client = db.relationship("Client", backref="cameras")
