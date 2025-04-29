@@ -1,6 +1,6 @@
-from main import create_app
 from app.extensions import db
 from app.models.tariff import Tariff
+from main import create_app
 
 TARIFFS = [
     {
@@ -12,23 +12,23 @@ TARIFFS = [
     },
     {
         "name": "standard",
-        "price": 9900,  # 99.00 руб
+        "price": 299900,  # 2999.00 руб = 299900
         "user_limit": 4,
         "camera_limit": 3,
         "roles_allowed": ["owner", "user"]
     },
     {
         "name": "pro",
-        "price": 19900,
+        "price": 899900,  # 8999.00 руб = 899900
         "user_limit": 8,
-        "camera_limit": 10,
+        "camera_limit": 8,
         "roles_allowed": ["owner", "admin", "moderator", "user"]
     },
     {
         "name": "ultima",
-        "price": 39900,
-        "user_limit": 1000,
-        "camera_limit": None,
+        "price": 1799900,  # 17999.00 руб = 1799900
+        "user_limit": 20,
+        "camera_limit": 15,
         "roles_allowed": ["owner", "admin", "moderator", "user"]
     }
 ]
