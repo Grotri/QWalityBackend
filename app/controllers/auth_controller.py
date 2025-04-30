@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify
+from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_token
 
 from app.config import Config
 from app.schemas.user_create_dto import UserCreateDTO
@@ -9,6 +10,17 @@ from app.usecases.request_password_reset import RequestPasswordResetUseCase
 from app.usecases.reset_password_confirm import ResetPasswordConfirmUseCase
 
 auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
+
+
+@auth_bp.route("/refresh", methods=["POST"])
+@jwt_required(refresh=True)
+def refresh_token():
+    identity = get_jwt_identity()
+    access_token = create_access_token(identity=identity)
+    return jsonify({
+        "access_token": access_token
+    }), 200
+
 
 if Config.FLASK_ENV == "development":
     @auth_bp.route("/register", methods=["POST"])
@@ -29,8 +41,11 @@ if Config.FLASK_ENV == "development":
 def login():
     try:
         data = UserLoginDTO(**request.json)
-        token = LoginUserUseCase.execute(data)
-        return jsonify({"access_token": token}), 200
+        tokens = LoginUserUseCase.execute(data)
+        return jsonify(
+            {"access_token": tokens["access_token"],
+             "refresh_token": tokens["refresh_token"]}
+        ), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 401
 
