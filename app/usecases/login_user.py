@@ -1,4 +1,4 @@
-from flask_jwt_extended import create_access_token
+from flask_jwt_extended import create_access_token, create_refresh_token
 from werkzeug.security import check_password_hash
 
 from app.repositories.user_repository import UserRepository
@@ -11,4 +11,8 @@ class LoginUserUseCase:
         user = UserRepository.get_by_email(data.email)
         if not user or not check_password_hash(user.hashed_password, data.password):
             raise ValueError("Invalid credentials")
-        return create_access_token(identity=user.id)
+        answer_dict = {
+            "access_token": create_access_token(identity=user.id),
+            "refresh_token": create_refresh_token(identity=user.id),
+        }
+        return answer_dict
