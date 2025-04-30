@@ -22,7 +22,7 @@ class RegisterClientUseCase:
         db.session.flush()  # Получим client.id
 
         owner = User(
-            login=data.email,
+            email=data.email,
             hashed_password=generate_password_hash(data.password),
             role="owner",
             client_id=client.id
