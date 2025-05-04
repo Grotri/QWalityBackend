@@ -11,7 +11,7 @@ class AddCameraUseCase:
         user = get_current_user()
         camera = Camera(
             name=data.name,
-            preview_url=data.preview_url,
+            camera_url=data.camera_url,
             client_id=user.client_id,
             status="active",
             created_at=datetime.utcnow()

@@ -44,7 +44,7 @@ def get_cameras():
         {
             "id": cam.id,
             "name": cam.name,
-            "preview_url": cam.preview_url,
+            "camera_url": cam.camera_url,
             "status": cam.status,
             "created_at": cam.created_at.isoformat()
         } for cam in cameras
