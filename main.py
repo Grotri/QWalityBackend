@@ -1,6 +1,7 @@
 import click
 from dotenv import load_dotenv
 from flask import Flask
+from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 
 from app.extensions import db, mail
@@ -19,6 +20,16 @@ def create_app():
     db.init_app(app)
     jwt.init_app(app)
     mail.init_app(app)
+
+    CORS(app,
+         resources={r"/*": {  # Применяем ко всем маршрутам
+             "origins": "*",  # Разрешаем запросы с любых доменов
+             "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],  # Все HTTP методы
+             "allow_headers": "*",  # Все заголовки
+             "expose_headers": "*",  # Все заголовки ответа доступны клиенту
+             "supports_credentials": True,  # Поддержка cookies и авторизации
+             "max_age": 86400  # Кеширование preflight-запросов на 24 часа
+         }})
 
     register_routes(app)
 
