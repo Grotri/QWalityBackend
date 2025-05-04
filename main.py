@@ -1,7 +1,6 @@
 import click
 from dotenv import load_dotenv
 from flask import Flask
-from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 
 from app.extensions import db, mail
@@ -17,8 +16,14 @@ def create_app():
     app = Flask(__name__)
     app.config.from_object("app.config.Config")
 
-    CORS(app, supports_credentials=True, origins=["http://localhost:5173"])
-    app.config['CORS_HEADERS'] = 'Content-Type'
+    app.url_map.strict_slashes = False
+
+    @app.after_request
+    def disable_cors(response):
+        response.headers["Access-Control-Allow-Origin"] = "*"
+        response.headers["Access-Control-Allow-Methods"] = "*"
+        response.headers["Access-Control-Allow-Headers"] = "*"
+        return response
 
     db.init_app(app)
     jwt.init_app(app)
