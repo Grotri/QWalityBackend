@@ -8,7 +8,7 @@ class Camera(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
-    preview_url = db.Column(db.String(255), nullable=True)
+    camera_url = db.Column(db.String(255), nullable=True)
 
     client_id = db.Column(db.Integer, db.ForeignKey("client.id"), nullable=False)
     status = db.Column(db.String(20), default="active")  # active / deleted
