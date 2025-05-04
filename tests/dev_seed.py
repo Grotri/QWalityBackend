@@ -9,9 +9,10 @@ def seed_test_tariff_and_license(client_id: int):
     if not tariff:
         tariff = Tariff(
             name="dev-fixture",
-            max_users=99,
-            max_cameras=99,
-            roles=["owner", "admin", "moderator", "user"]
+            user_limit=99,
+            price=0,
+            camera_limit=99,
+            roles_allowed=["owner", "admin", "moderator", "user"]
         )
         db.session.add(tariff)
         db.session.flush()
@@ -19,8 +20,9 @@ def seed_test_tariff_and_license(client_id: int):
     license = License(
         client_id=client_id,
         tariff_id=tariff.id,
-        active=True,
-        expires_at=datetime.utcnow() + timedelta(days=30)
+        activated_at=datetime.utcnow(),
+        expired_at=datetime.utcnow() + timedelta(days=30),
+        status="active"
     )
     db.session.add(license)
     db.session.commit()
