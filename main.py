@@ -17,6 +17,9 @@ def create_app():
     app = Flask(__name__)
     app.config.from_object("app.config.Config")
 
+    CORS(app, supports_credentials=True, origins=["http://localhost:5173"])
+    app.config['CORS_HEADERS'] = 'Content-Type'
+
     db.init_app(app)
     jwt.init_app(app)
     mail.init_app(app)
