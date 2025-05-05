@@ -1,19 +1,25 @@
 from datetime import datetime
 
+from flask import jsonify
 from werkzeug.security import generate_password_hash
 
-from app.extensions import db
+from app.extensions import db, cache
 from app.models.user import User
 
 
 class ResetPasswordConfirmUseCase:
     @staticmethod
-    def execute(token: str, new_password: str):
-        user = User.query.filter_by(reset_token=token).first()
-        if not user or user.reset_token_expiry < datetime.utcnow():
-            raise ValueError("Invalid or expired token")
+    def execute(email: str, code: str, new_password: str):
+        user = User.query.filter_by(email=email).first()
+        print(user.email)
 
+        expected_code = cache.get(f"reset_code:{email}")
+        print(expected_code, code)
+        if expected_code != code:
+            raise ValueError("Неверный код")
+        print(4)
+
+        print(new_password)
         user.hashed_password = generate_password_hash(new_password)
-        user.reset_token = None
-        user.reset_token_expiry = None
+        print(user.hashed_password)
         db.session.commit()

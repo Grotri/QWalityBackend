@@ -1,6 +1,6 @@
 from enum import Enum
 
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, constr
 
 
 class ClientType(str, Enum):
@@ -13,3 +13,4 @@ class ClientRegisterDTO(BaseModel):
     password: str
     tin: str
     type: ClientType
+    code: constr(min_length=6, max_length=6)
