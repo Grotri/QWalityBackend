@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 from flask import Flask
 from flask_jwt_extended import JWTManager
 
-from app.extensions import db, mail
+from app.extensions import db, mail, cache
 from app.routes import register_routes
 from tests.dev_seed import seed_test_tariff_and_license
 from tests.dev_unseed import unseed_test_license_and_tariff
@@ -25,6 +25,7 @@ def create_app():
         response.headers["Access-Control-Allow-Headers"] = "*"
         return response
 
+    cache.init_app(app)
     db.init_app(app)
     jwt.init_app(app)
     mail.init_app(app)
