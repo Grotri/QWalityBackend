@@ -10,8 +10,8 @@ RUN apt-get update && \
     build-essential \
     python3-dev \
     libc6-dev \
-    postgresql-server-dev-all \
     gcc \
+    sudo \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
@@ -26,7 +26,8 @@ RUN if [ ! -d .git ]; then \
 RUN mkdir -p /var/run/postgresql && \
     chown -R postgres:postgres /var/run/postgresql && \
     mkdir -p /var/lib/postgresql/data && \
-    chown -R postgres:postgres /var/lib/postgresql/data
+    chown -R postgres:postgres /var/lib/postgresql/data && \
+    sudo -u postgres initdb -D /var/lib/postgresql/data
 
 COPY init_db.sh /docker-entrypoint-initdb.d/
 RUN chmod +x /docker-entrypoint-initdb.d/init_db.sh
