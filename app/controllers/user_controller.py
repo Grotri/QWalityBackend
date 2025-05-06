@@ -3,6 +3,7 @@ import traceback
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required
 
+from app.controllers import _build_cors_preflight_response, _corsify_actual_response
 from app.extensions import db
 from app.models import User
 from app.schemas.sub_user_create_dto import SubUserCreateDTO
@@ -52,7 +53,7 @@ def create_sub_account():
 
 @user_bp.route("/", methods=["GET"])
 @jwt_required()
-@role_required("owner", "admin", "moderator")
+@role_required("owner", "admin")
 def list_users():
     current_user = get_current_user()
     users = User.query.filter_by(client_id=current_user.client_id).all()

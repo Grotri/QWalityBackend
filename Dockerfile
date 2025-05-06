@@ -1,28 +1,25 @@
-FROM python:3.10-slim
+FROM python:3.10
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     git \
     libpq-dev \
+    postgresql \
     postgresql-client \
+    postgresql-contrib \
+    build-essential \
+    python3-dev \
+    libc6-dev \
+    gcc \
+    sudo \
     && rm -rf /var/lib/apt/lists/*
 
+RUN git clone https://github.com/Grotri/QWalityBackend.git /app
 WORKDIR /app
+RUN git checkout develop
 
-RUN if [ ! -d .git ]; then \
-        git clone https://github.com/Grotri/QWalityBackend.git . && \
-        git checkout develop; \
-    else \
-        git pull origin develop; \
-    fi
+RUN pip install -r requirements.txt
 
-COPY init_db.sh /docker-entrypoint-initdb.d/
-RUN chmod +x /docker-entrypoint-initdb.d/init_db.sh
-
-COPY requirements.txt .
-RUN pip install --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
-
-COPY . .
-
-CMD ["flask", "run", "--host=0.0.0.0"]
+COPY start.sh /app/start.sh
+RUN chmod +x /app/start.sh
+ENTRYPOINT ["/app/start.sh"]
