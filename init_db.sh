@@ -8,6 +8,7 @@ else
     echo "База данных 'qwality' уже существует."
 fi
 
+
 export DATABASE_URL="postgresql://postgres@localhost:5432/qwality"
 alembic upgrade head
 python3 ./seeders/seed_tariffs.py
