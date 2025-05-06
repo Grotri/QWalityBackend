@@ -30,16 +30,6 @@ def create_app():
     jwt.init_app(app)
     mail.init_app(app)
 
-    CORS(app,
-         resources={r"/*": {  # Применяем ко всем маршрутам
-             "origins": "*",  # Разрешаем запросы с любых доменов
-             "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],  # Все HTTP методы
-             "allow_headers": "*",  # Все заголовки
-             "expose_headers": "*",  # Все заголовки ответа доступны клиенту
-             "supports_credentials": True,  # Поддержка cookies и авторизации
-             "max_age": 86400  # Кеширование preflight-запросов на 24 часа
-         }})
-
     register_routes(app)
 
     @app.cli.command("seed-dev")
