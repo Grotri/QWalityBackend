@@ -1,10 +1,14 @@
 #!/bin/bash
 set -e
 
-su postgres -c "pg_ctlcluster 13 main start"
+if [ ! -d "/var/lib/postgresql/data/pgdata" ]; then
+    sudo -u postgres initdb -D /var/lib/postgresql/data/pgdata
+fi
 
-until pg_isready -h localhost; do
-  sleep 1
+sudo -u postgres pg_ctl -D /var/lib/postgresql/data/pgdata -l /var/log/postgresql.log start
+
+until sudo -u postgres pg_isready; do
+    sleep 1
 done
 
 if [ -f /docker-entrypoint-initdb.d/init_db.sh ]; then

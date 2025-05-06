@@ -1,8 +1,8 @@
 #!/bin/bash
 set -e
 
-if ! psql -U postgres -h localhost -lqt | cut -d \| -f 1 | grep -qw qwality; then
-    psql -U postgres -h localhost -c "CREATE DATABASE qwality;"
+if ! sudo -u postgres psql -lqt | cut -d \| -f 1 | grep -qw qwality; then
+    sudo -u postgres createdb qwality
     echo "База данных 'qwality' создана."
 else
     echo "База данных 'qwality' уже существует."
