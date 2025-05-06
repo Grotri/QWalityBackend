@@ -3,6 +3,7 @@ import traceback
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required
 
+from app.controllers import _build_cors_preflight_response, _corsify_actual_response
 from app.extensions import db
 from app.models import User
 from app.schemas.sub_user_create_dto import SubUserCreateDTO
@@ -67,17 +68,20 @@ def list_users():
     ])
 
 
-@user_bp.route("/me", methods=["GET"])
+@user_bp.route("/me", methods=["GET", "OPTIONS"])
 @jwt_required()
 def get_me():
+    if request.method == "OPTIONS":
+        return _build_cors_preflight_response()
+
     u = get_current_user()
-    return jsonify({
+    return _corsify_actual_response(jsonify({
         "id": u.id,
         "email": u.email,
         "role": u.role,
         "color_theme": u.color_theme,
         "font_size": u.font_size
-    })
+    }))
 
 
 @user_bp.route("/<int:user_id>", methods=["DELETE"])
