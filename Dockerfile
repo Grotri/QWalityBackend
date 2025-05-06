@@ -5,6 +5,10 @@ RUN apt-get update && \
     git \
     libpq-dev \
     postgresql-client \
+    build-essential \
+    python3-dev \
+    libc6-dev \
+    postgresql-server-dev-all \
     gcc \
     && rm -rf /var/lib/apt/lists/*
 
