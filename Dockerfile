@@ -21,5 +21,5 @@ RUN git checkout develop
 RUN pip install -r requirements.txt
 
 COPY start.sh /app/start.sh
-RUN chmod +x /22 /app/start.sh
+RUN chmod +x /app/start.sh
 ENTRYPOINT ["/app/start.sh"]
