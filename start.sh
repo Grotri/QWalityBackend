@@ -9,6 +9,8 @@ psql -h localhost -U postgres -tc "SELECT 1 FROM pg_database WHERE datname = 'qw
 
 alembic upgrade head
 
+export PYTHONPATH=/app:$PYTHONPATH
+
 python ./seeders/seed_tariffs.py
 
 flask run --host=0.0.0.0
