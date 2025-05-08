@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 from flask import Flask
 from flask_jwt_extended import JWTManager
 
+from app.controllers import _build_cors_preflight_response, _corsify_actual_response
 from app.extensions import db, mail, cache
 from app.routes import register_routes
 from tests.dev_seed import seed_test_tariff_and_license
@@ -30,7 +31,16 @@ def create_app():
     jwt.init_app(app)
     mail.init_app(app)
 
+    @app.route('/', defaults={'path': ''}, methods=['OPTIONS'])
+    @app.route('/<path:path>', methods=['OPTIONS'])
+    def global_options(path):
+        return _build_cors_preflight_response()
+
     register_routes(app)
+
+    @app.after_request
+    def wrap_response(response):
+        return _corsify_actual_response(response)
 
     @app.cli.command("seed-dev")
     @click.option("--client-id", required=True, type=int, help="Client ID for seeding")

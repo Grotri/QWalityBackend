@@ -53,7 +53,7 @@ def create_sub_account():
 
 @user_bp.route("/", methods=["GET"])
 @jwt_required()
-@role_required("owner", "admin", "moderator")
+@role_required("owner", "admin")
 def list_users():
     current_user = get_current_user()
     users = User.query.filter_by(client_id=current_user.client_id).all()
@@ -68,20 +68,17 @@ def list_users():
     ])
 
 
-@user_bp.route("/me", methods=["GET", "OPTIONS"])
+@user_bp.route("/me", methods=["GET"])
 @jwt_required()
 def get_me():
-    if request.method == "OPTIONS":
-        return _build_cors_preflight_response()
-
     u = get_current_user()
-    return _corsify_actual_response(jsonify({
+    return jsonify({
         "id": u.id,
         "email": u.email,
         "role": u.role,
         "color_theme": u.color_theme,
         "font_size": u.font_size
-    }))
+    })
 
 
 @user_bp.route("/<int:user_id>", methods=["DELETE"])
