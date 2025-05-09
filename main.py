@@ -42,11 +42,6 @@ def create_app():
              "max_age": 86400  # Кеширование preflight-запросов на 24 часа
          }})
 
-    @app.route('/', defaults={'path': ''}, methods=['OPTIONS'])
-    @app.route('/<path:path>', methods=['OPTIONS'])
-    def global_options(path):
-        return _build_cors_preflight_response()
-
     register_routes(app)
 
     @app.after_request
