@@ -18,9 +18,9 @@ services:
       context: .
       dockerfile: Dockerfile
     depends_on:
-      - db
+      - qwality-db-1
     environment:
-      DB_HOST: db
+      DB_HOST: qwality-db-1
       DB_PORT: 5432
       DB_USER: postgres
       DB_PASSWORD: postgres
