@@ -1,6 +1,6 @@
 #!/bin/bash
 
-until pg_isready -h localhost -p 5432 -U postgres; do
+until pg_isready -h qwality-db-1 -p 5432 -U postgres; do
   echo "Waiting for database..."
   sleep 2
 done
