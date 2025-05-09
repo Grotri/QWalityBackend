@@ -4,8 +4,6 @@ from alembic import context
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
-import app.models.user
-from app.config import Config
 from app.extensions import db
 
 # this is the Alembic Config object, which provides
@@ -61,7 +59,16 @@ def run_migrations_online() -> None:
     and associate a connection with the context.
 
     """
+
+    from app.config import Config
+    print(f"Config URI: {Config.SQLALCHEMY_DATABASE_URI}")
+
     configuration = config.get_section(config.config_ini_section)
+    print(f"Original sqlalchemy.url: {configuration.get('sqlalchemy.url', 'NOT SET')}")
+
+    configuration["sqlalchemy.url"] = Config.SQLALCHEMY_DATABASE_URI
+    print(f"Modified sqlalchemy.url: {configuration['sqlalchemy.url']}")
+
     configuration["sqlalchemy.url"] = Config.SQLALCHEMY_DATABASE_URI
     connectable = engine_from_config(
         configuration,
