@@ -9,7 +9,7 @@ clients_bp = Blueprint("clients", __name__, url_prefix="/clients")
 
 
 @clients_bp.route("/", methods=["POST", "OPTIONS"])
-@cross_origin()
+@cross_origin(supports_credentials=True)
 def register_client():
     if request.method == "OPTIONS":
         return _build_cors_preflight_response()
