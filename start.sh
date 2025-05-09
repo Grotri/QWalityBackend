@@ -5,7 +5,7 @@ until pg_isready -h qwality-db-1 -p 5432 -U postgres; do
   sleep 2
 done
 
-psql -h localhost -U postgres -tc "SELECT 1 FROM pg_database WHERE datname = 'qwality'" | grep -q 1 || psql -h localhost -U postgres -c "CREATE DATABASE qwality"
+psql -h qwality-db-1 -U postgres -tc "SELECT 1 FROM pg_database WHERE datname = 'qwality'" | grep -q 1 || psql -h localhost -U postgres -c "CREATE DATABASE qwality"
 
 alembic upgrade head
 
