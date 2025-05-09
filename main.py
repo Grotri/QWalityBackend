@@ -20,12 +20,12 @@ def create_app():
 
     app.url_map.strict_slashes = False
 
-    # @app.after_request
-    # def disable_cors(response):
-    #     response.headers["Access-Control-Allow-Origin"] = "*"
-    #     response.headers["Access-Control-Allow-Methods"] = "*"
-    #     response.headers["Access-Control-Allow-Headers"] = "*"
-    #     return response
+    @app.after_request
+    def disable_cors(response):
+        response.headers["Access-Control-Allow-Origin"] = "*"
+        response.headers["Access-Control-Allow-Methods"] = "*"
+        response.headers["Access-Control-Allow-Headers"] = "*"
+        return response
 
     cache.init_app(app)
     db.init_app(app)
@@ -42,7 +42,7 @@ def create_app():
     #          "max_age": 86400  # Кеширование preflight-запросов на 24 часа
     #      }})
 
-    CORS(app, support_credentials=True)
+    # CORS(app, support_credentials=True)
 
     register_routes(app)
 
