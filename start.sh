@@ -11,7 +11,7 @@ psql -h db -U postgres -tc "SELECT 1 FROM pg_database WHERE datname = 'qwality'"
 
 export SQLALCHEMY_DATABASE_URI="postgresql://postgres:postgres@db:5432/qwality"
 
-python test_db.py
+python ./test_db.py
 
 alembic upgrade head
 
