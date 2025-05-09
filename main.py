@@ -51,7 +51,6 @@ def create_app():
     @app.cli.command("seed-dev")
     @click.option("--client-id", required=True, type=int, help="Client ID for seeding")
     def seed_dev(client_id):
-        """Seed dev tariff and license data"""
         with app.app_context():
             seed_test_tariff_and_license(client_id)
             click.echo(f"Seeded data for client_id={client_id}")
@@ -59,7 +58,6 @@ def create_app():
     @app.cli.command("unseed-dev")
     @click.option("--client-id", required=True, type=int, help="Client ID for unseeding")
     def unseed_dev(client_id):
-        """Unseed dev tariff and license data"""
         with app.app_context():
             unseed_test_license_and_tariff(client_id)
             click.echo(f"Unseeded data for client_id={client_id}")
