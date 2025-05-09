@@ -9,6 +9,8 @@ services:
       POSTGRES_DB: qwality
     volumes:
       - pgdata:/var/lib/postgresql/data
+    ports:
+      - 5000:5000
     networks:
       - qwality_net
     command: postgres -c listen_addresses='*'
