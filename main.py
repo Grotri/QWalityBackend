@@ -18,12 +18,6 @@ def create_app():
 
     app.url_map.strict_slashes = False
 
-    def option_todo(id):
-        return '', 204
-
-    app.add_url_rule('/', view_func=option_todo, provide_automatic_options=False, methods=['OPTIONS'])
-    app.add_url_rule(r'/<path:path>', view_func=option_todo, provide_automatic_options=False, methods=['OPTIONS'])
-
     cache.init_app(app)
     db.init_app(app)
     jwt.init_app(app)
