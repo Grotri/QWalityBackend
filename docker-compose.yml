@@ -3,21 +3,34 @@ version: '3.8'
 services:
   db:
     image: postgres:13
-    network_mode: host
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: qwality
     volumes:
       - pgdata:/var/lib/postgresql/data
+    networks:
+      - qwality_net
+    command: postgres -c listen_addresses='*'
 
   app:
     build:
       context: .
       dockerfile: Dockerfile
-    network_mode: host
     depends_on:
       - db
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: qwality
+    networks:
+      - qwality_net
 
 volumes:
   pgdata:
+
+networks:
+  qwality_net:
+    driver: bridge
