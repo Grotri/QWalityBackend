@@ -1,24 +1,33 @@
-from io import BytesIO
-
-import requests
-from PIL import Image
-
 from app.ai.model import yolo_model
 
 
-def run_inference(image_path: str, conf_threshold: float = 0.25):
-    try:
-        if image_path.startswith("http"):
-            # Загружаем изображение по ссылке
-            response = requests.get(image_path)
-            response.raise_for_status()
-            image = Image.open(BytesIO(response.content)).convert("RGB")
-            results = yolo_model.predict(source=image, imgsz=416, conf=conf_threshold, device="cpu")
-        else:
-            # Предполагаем, что это локальный файл
-            results = yolo_model.predict(source=image_path, imgsz=416, conf=conf_threshold, device="cpu")
+def run_inference(image_url: str, conf_threshold: float = 0.25):
+    results = yolo_model.predict(source=image_url, conf=conf_threshold, imgsz=416, device="cpu", verbose=False)
+    detections = []
 
-        return results
+    if not results:
+        return AIResult(defects=[])
 
-    except Exception as e:
-        raise RuntimeError(f"Inference error: {e}")
+    result = results[0]  # одна картинка
+
+    for box in result.boxes:
+        cls_id = int(box.cls[0].item())  # индекс класса
+        label = yolo_model.names[cls_id]  # имя класса
+        conf = float(box.conf[0].item())
+
+        x1, y1, x2, y2 = box.xyxy[0].tolist()
+        width = x2 - x1
+        height = y2 - y1
+
+        detections.append({
+            "label": label,
+            "confidence": conf,
+            "bbox": [x1, y1, width, height]
+        })
+
+    return AIResult(defects=detections)
+
+
+class AIResult:
+    def __init__(self, defects: list[dict]):
+        self.defects = defects
