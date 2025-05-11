@@ -10,7 +10,6 @@ class RegisterClientUseCase:
     def execute(data):
         cached_code = cache.get(f"reg_code:{data.email}")
         if not cached_code or cached_code != data.code:
-            print(cached_code, data.code)
             raise ValueError("Invalid or expired verification code")
 
         if Client.query.filter_by(email=data.email).first():
