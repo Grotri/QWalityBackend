@@ -1,3 +1,3 @@
 from ultralytics import YOLO
 
-yolo_model = YOLO(model='weights/best.onnx')
+yolo_model = YOLO(model='../ai/weights/best.onnx')
