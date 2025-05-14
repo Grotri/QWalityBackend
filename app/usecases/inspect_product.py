@@ -1,49 +1,42 @@
-from datetime import datetime
+from flask_jwt_extended import get_jwt_identity
 
 from app.ai.inference import run_inference
-from app.extensions import db
-from app.models.defect import Defect
-from app.models.inspection import Inspection
-from app.models.product import Product
-from app.utils.auth import get_current_user
+from app.repositories.defect_repository import DefectRepository
+from app.repositories.inspection_repository import InspectionRepository
+from app.repositories.product_repository import ProductRepository
+from app.services.minio_client import MinioClient
 
 
 class InspectProductUseCase:
     @staticmethod
-    def execute(product_id: int, image_path: str):
-        user = get_current_user()
+    def execute(batch_number: str, camera_id: int, image):
+        minio = MinioClient()
+        image_url = minio.upload_file(image.stream, image.filename)
 
-        product = Product.query.filter_by(id=product_id, camera_id=user.client.camera_id).first()
-        if not product:
-            raise ValueError("Product not found or unauthorized")
-
-        conf = user.client.conf_threshold or 0.25
-        results = run_inference(image_path=image_path, conf_threshold=conf)
-        boxes = results[0].boxes
-
-        is_defective = len(boxes) > 0
-
-        inspection = Inspection(
-            product_id=product.id,
-            user_id=user.id,
-            result="defective" if is_defective else "intact",
-            inspected_at=datetime.utcnow()
+        product = ProductRepository.create(
+            batch_number=batch_number,
+            camera_id=camera_id
         )
-        db.session.add(inspection)
-        db.session.flush()
 
-        if is_defective:
-            for box in boxes:
-                defect = Defect(
-                    inspection_id=inspection.id,
-                    label=str(box.cls.item()),
-                    confidence=float(box.conf.item()),
-                    x=float(box.xywh[0][0]),
-                    y=float(box.xywh[0][1]),
-                    width=float(box.xywh[0][2]),
-                    height=float(box.xywh[0][3])
-                )
-                db.session.add(defect)
+        # запуск inference
+        ai_result = run_inference(image_url)
+        result = "defective" if ai_result.defects else "intact"
 
-        db.session.commit()
-        return inspection
+        inspection = InspectionRepository.create(
+            product_id=product.id,
+            user_id=get_jwt_identity(),
+            result=result
+        )
+
+        if ai_result.defects:
+            defects_data = [
+                {
+                    "label": d["label"],
+                    "confidence": d["confidence"],
+                    "bbox": d["bbox"]
+                }
+                for d in ai_result.defects
+            ]
+            DefectRepository.save_many(defects_data, inspection_id=inspection.id)
+
+        return inspection, product, ai_result, image_url

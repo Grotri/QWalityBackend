@@ -1,6 +1,8 @@
 FROM python:3.10
 
 RUN apt-get update && \
+    apt-get install -y libgl1-mesa-dev libglib2.0-0 && \
+    apt-get install ffmpeg libsm6 libxext6 -y && \
     apt-get install -y --no-install-recommends \
     git \
     libpq-dev \
