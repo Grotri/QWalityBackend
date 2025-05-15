@@ -12,12 +12,12 @@ class InspectionRepository:
         return Inspection.query.filter_by(product_id=product_id).all()
 
     @staticmethod
-    def get_all_by_user(user_id: int) -> list[Inspection]:
-        return Inspection.query.filter_by(user_id=user_id).all()
+    def get_all_by_client(client_id: int) -> list[Inspection]:
+        return Inspection.query.filter_by(client_id=client_id).all()
 
     @staticmethod
-    def create(product_id: int, user_id: int, result: str) -> Inspection:
-        inspection = Inspection(product_id=product_id, user_id=user_id, result=result)
+    def create(product_id: int, client_id: int, result: str) -> Inspection:
+        inspection = Inspection(product_id=product_id, client_id=client_id, result=result)
         db.session.add(inspection)
         db.session.commit()
         return inspection

@@ -1,6 +1,5 @@
-from app.extensions import db
-from app.models.payment import Payment
-from app.models.tariff import Tariff
+from app.repositories.payment_repository import PaymentRepository
+from app.repositories.tariff_repository import TariffRepository
 from app.services.freekassa_client import FreeKassaClient
 from app.utils.auth import get_current_user
 
@@ -12,7 +11,7 @@ class CreatePaymentSessionUseCase:
         if user.role != "owner":
             raise PermissionError("Only owner can initiate payments.")
 
-        tariff = Tariff.query.get(tariff_id)
+        tariff = TariffRepository.get_by_id(tariff_id=tariff_id)
         if not tariff:
             raise ValueError("Tariff not found.")
 
@@ -23,15 +22,12 @@ class CreatePaymentSessionUseCase:
             description=f"Оплата тарифа {tariff.name}"
         )
 
-        payment = Payment(
+        payment = PaymentRepository.create(
             client_id=user.client_id,
             tariff_id=tariff.id,
-            amount=tariff.price,
-            status="created",
-            payment_id=None  # в FreeKassa мы получим ID позже в webhook-е
+            payment_uid="check line 30 in create_payment_session.py",  # todo: Это ошибка-затычка, так быть не должно
+            amount=tariff.price
         )
-        db.session.add(payment)
-        db.session.commit()
 
         return {
             "payment_url": payment_url,

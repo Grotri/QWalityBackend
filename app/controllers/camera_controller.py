@@ -3,8 +3,8 @@ from flask_jwt_extended import jwt_required
 
 from app.extensions import db
 from app.models import Camera
-from app.schemas.camera_create_dto import CameraCreateDTO
-from app.usecases.add_camera import AddCameraUseCase
+from app.schemas.camera.camera_create_dto import CameraCreateDTO
+from app.usecases.camera.add_camera import AddCameraUseCase
 from app.utils.auth import get_current_user
 from app.utils.license_limits import license_limited
 from app.utils.role_required import role_required

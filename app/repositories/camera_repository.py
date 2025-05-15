@@ -1,5 +1,6 @@
 from app.models import Camera
 from app.extensions import db
+from app.utils.auth import get_current_client
 
 
 class CameraRepository:
@@ -16,7 +17,7 @@ class CameraRepository:
         return Camera.query.filter_by(client_id=client_id, status="active").all()
 
     @staticmethod
-    def create(name: str, camera_url: str, client_id: int, status: str = "active") -> Camera:
+    def create(name: str, camera_url: str, client_id: int = get_current_client(), status: str = "active") -> Camera:
         camera = Camera(
             name=name,
             camera_url=camera_url,

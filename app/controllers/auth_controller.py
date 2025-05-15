@@ -6,10 +6,10 @@ from flask_mail import Message
 
 from app.extensions import mail, cache
 from app.models import Client
-from app.schemas.user_login_dto import UserLoginDTO
-from app.usecases.login_user import LoginUserUseCase
-from app.usecases.request_password_reset import RequestPasswordResetUseCase
-from app.usecases.reset_password_confirm import ResetPasswordConfirmUseCase
+from app.schemas.user.user_login_dto import UserLoginDTO
+from app.usecases.user.login_user import LoginUserUseCase
+from app.usecases.client.request_password_reset import RequestPasswordResetUseCase
+from app.usecases.client.reset_password_confirm import ResetPasswordConfirmUseCase
 
 auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
 

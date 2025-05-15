@@ -1,5 +1,5 @@
 from app.repositories.user_repository import UserRepository
-from app.schemas.update_user_role_dto import UpdateUserRoleDTO
+from app.schemas.user.update_user_role_dto import UpdateUserRoleDTO
 from app.utils.auth import get_current_user
 
 ROLE_HIERARCHY = {
@@ -32,4 +32,7 @@ class UpdateUserRoleUseCase:
             raise PermissionError("Cannot assign equal or higher role")
 
         target_user.role = data.role
-        return UserRepository.save(target_user)
+        return UserRepository.update(
+            user_id=target_user.id,
+            role=data.role
+        )

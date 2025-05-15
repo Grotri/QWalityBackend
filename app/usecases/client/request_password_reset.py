@@ -3,13 +3,13 @@ import random
 from flask_mail import Message
 
 from app.extensions import mail, cache
-from app.models.user import User
+from app.repositories.user_repository import UserRepository
 
 
 class RequestPasswordResetUseCase:
     @staticmethod
     def execute(email: str):
-        user = User.query.filter_by(email=email).first()
+        user = UserRepository.get_by_email(email)
         if not user:
             raise ValueError("User not found")
 

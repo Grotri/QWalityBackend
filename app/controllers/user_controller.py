@@ -3,13 +3,12 @@ import traceback
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required
 
-from app.controllers import _build_cors_preflight_response, _corsify_actual_response
 from app.extensions import db
 from app.models import User
-from app.schemas.sub_user_create_dto import SubUserCreateDTO
-from app.schemas.update_user_role_dto import UpdateUserRoleDTO
-from app.usecases.create_sub_user import CreateSubUserUseCase
-from app.usecases.update_user_role import UpdateUserRoleUseCase
+from app.schemas.user.sub_user_create_dto import SubUserCreateDTO
+from app.schemas.user.update_user_role_dto import UpdateUserRoleDTO
+from app.usecases.user.create_sub_user import CreateSubUserUseCase
+from app.usecases.user.update_user_role import UpdateUserRoleUseCase
 from app.utils.auth import get_current_user
 from app.utils.role_required import role_required
 

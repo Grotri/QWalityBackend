@@ -1,10 +1,9 @@
-from flask_jwt_extended import get_jwt_identity
-
 from app.ai.inference import run_inference
 from app.repositories.defect_repository import DefectRepository
 from app.repositories.inspection_repository import InspectionRepository
 from app.repositories.product_repository import ProductRepository
 from app.services.minio_client import MinioClient
+from app.utils.auth import get_current_client
 
 
 class InspectProductUseCase:
@@ -24,19 +23,19 @@ class InspectProductUseCase:
 
         inspection = InspectionRepository.create(
             product_id=product.id,
-            user_id=get_jwt_identity(),
+            client_id=get_current_client(),
             result=result
         )
 
-        if ai_result.defects:
-            defects_data = [
-                {
-                    "label": d["label"],
-                    "confidence": d["confidence"],
-                    "bbox": d["bbox"]
-                }
-                for d in ai_result.defects
-            ]
-            DefectRepository.save_many(defects_data, inspection_id=inspection.id)
+        for defect in ai_result.defects:
+            DefectRepository.create(
+                inspection_id=inspection.id,
+                label=defect["label"],
+                confidence=defect["confidence"],
+                x=defect["bbox"][0],
+                y=defect["bbox"][1],
+                width=defect["bbox"][2],
+                height=defect["bbox"][3]
+            )
 
         return inspection, product, ai_result, image_url

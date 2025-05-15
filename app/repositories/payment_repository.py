@@ -17,6 +17,10 @@ class PaymentRepository:
         return Payment.query.filter_by(client_id=client_id).all()
 
     @staticmethod
+    def get_created_by_client_id(client_id: int):
+        return Payment.query.filter_by(client_id=client_id, status="created").first()
+
+    @staticmethod
     def create(
             client_id: int,
             tariff_id: int,

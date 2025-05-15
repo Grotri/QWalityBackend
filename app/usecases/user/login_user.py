@@ -2,7 +2,7 @@ from flask_jwt_extended import create_access_token, create_refresh_token
 from werkzeug.security import check_password_hash
 
 from app.repositories.user_repository import UserRepository
-from app.schemas.user_login_dto import UserLoginDTO
+from app.schemas.user.user_login_dto import UserLoginDTO
 
 
 class LoginUserUseCase:

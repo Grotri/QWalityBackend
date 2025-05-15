@@ -2,10 +2,9 @@ import hashlib
 import os
 from datetime import datetime
 
-from app.extensions import db
-from app.models.client import Client
-from app.models.license import License
-from app.models.payment import Payment
+from app.repositories.client_repository import ClientRepository
+from app.repositories.license_repository import LicenseRepository
+from app.repositories.payment_repository import PaymentRepository
 
 
 class HandlePaymentWebhookUseCase:
@@ -20,27 +19,26 @@ class HandlePaymentWebhookUseCase:
             raise ValueError("Invalid signature")
 
         client_id = int(order_id)
-        client = Client.query.get(client_id)
+        client = ClientRepository.get_by_id(client_id)
         if not client:
             raise ValueError("Client not found")
 
-        payment = Payment.query.filter_by(client_id=client.id, status="created").first()
+        payment = PaymentRepository.get_created_by_client_id(client_id)
         if not payment:
             raise ValueError("Payment not found or already processed")
 
         # Подтверждаем платёж
-        payment.status = "paid"
-        payment.confirmed_at = datetime.utcnow()
-        db.session.commit()
+        PaymentRepository.update_status(
+            payment_id=payment.id,
+            status="paid",
+            confirmed_at=datetime.utcnow()
+        )
 
         # Активируем лицензию на 30 дней
-        license = License(
+        LicenseRepository.create(
             client_id=client.id,
             tariff_id=payment.tariff_id,
             payment_id=payment.id,
             status="active",
-            activated_at=datetime.utcnow(),
             expired_at=datetime.utcnow().replace(day=datetime.utcnow().day + 30)
         )
-        db.session.add(license)
-        db.session.commit()
