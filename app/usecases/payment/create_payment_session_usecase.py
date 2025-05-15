@@ -25,7 +25,7 @@ class CreatePaymentSessionUseCase:
         payment = PaymentRepository.create(
             client_id=user.client_id,
             tariff_id=tariff.id,
-            payment_uid="check line 30 in create_payment_session.py",  # todo: Это ошибка-затычка, так быть не должно
+            payment_uid="check line 30 in create_payment_session_usecase.py",  # todo: Это ошибка-затычка, так быть не должно
             amount=tariff.price
         )
 

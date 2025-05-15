@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 
 from app.schemas.client.client_register_dto import ClientRegisterDTO
-from app.usecases.client.register_client import RegisterClientUseCase
+from app.usecases.client.register_client_usecase import RegisterClientUseCase
 
 clients_bp = Blueprint("clients", __name__, url_prefix="/clients")
 

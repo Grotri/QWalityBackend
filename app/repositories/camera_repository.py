@@ -34,7 +34,7 @@ class CameraRepository:
         if not camera:
             raise ValueError("Camera not found")
 
-        allowed_fields = {"name", "camera_url", "status", "client_id"}
+        allowed_fields = {"name", "camera_url", "status", "client_id", "deleted_at"}
         for key, value in kwargs.items():
             if key in allowed_fields:
                 setattr(camera, key, value)

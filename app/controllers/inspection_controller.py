@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required
 
 from app.schemas.inspection.inspect_product_dto import InspectProductDTO
-from app.usecases.inspection.inspect_product import InspectProductUseCase
+from app.usecases.inspection.inspect_product_usecase import InspectProductUseCase
 
 inspection_bp = Blueprint("inspections", __name__, url_prefix="/inspections")
 
