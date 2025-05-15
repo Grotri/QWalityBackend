@@ -12,8 +12,8 @@ class ProductRepository:
         return Product.query.filter_by(camera_id=camera_id).all()
 
     @staticmethod
-    def create(batch_number: str, camera_id: int) -> Product:
-        product = Product(batch_number=batch_number, camera_id=camera_id)
+    def create(batch_number: str, camera_id: int, image_url: str) -> Product:
+        product = Product(batch_number=batch_number, camera_id=camera_id, image_url=image_url)
         db.session.add(product)
         db.session.commit()
         return product
