@@ -1,5 +1,6 @@
 import os
 import uuid
+from io import BytesIO
 
 from minio import Minio
 
@@ -30,3 +31,24 @@ class MinioClient:
             content_type=content_type
         )
         return f"http://{self.client._endpoint}/{self.bucket}/{object_name}"
+
+    from io import BytesIO
+
+    def download_file(self, object_url: str) -> BytesIO:
+        # Извлекаем object_name из URL
+        prefix = f"http://{self.client._endpoint}/{self.bucket}/"
+        if not object_url.startswith(prefix):
+            raise ValueError("Invalid object URL")
+
+        object_name = object_url[len(prefix):]
+
+        response = self.client.get_object(self.bucket, object_name)
+        return BytesIO(response.read())
+
+    def delete_file(self, object_url: str):
+        prefix = f"http://{self.client._endpoint}/{self.bucket}/"
+        if not object_url.startswith(prefix):
+            raise ValueError("Invalid object URL")
+
+        object_name = object_url[len(prefix):]
+        self.client.remove_object(self.bucket, object_name)
