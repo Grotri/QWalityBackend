@@ -44,7 +44,7 @@ def inspect_product():
 
 @inspection_bp.route("/test/", methods=["POST"])
 @jwt_required()
-def inspect_product():
+def inspect_product_test():
     try:
         file_path = "./panel_19.jpg"
         if not os.path.exists(file_path):
