@@ -44,6 +44,8 @@ def create_sub_account():
             "email": user.email,
             "role": user.role
         }), 201
+    except PermissionError as e:
+        return jsonify({"error": str(e)}), 403
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
@@ -85,6 +87,9 @@ def delete_user(user_id):
     try:
         DeleteUserUseCase.execute(user_id)
         return jsonify({"message": "User deleted"}), 200
-
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 404
+    except PermissionError as e:
+        return jsonify({"error": str(e)}), 403
     except Exception as e:
         return jsonify({"error": str(e)}), 500
