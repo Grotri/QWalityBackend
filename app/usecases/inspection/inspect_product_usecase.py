@@ -10,7 +10,9 @@ from app.utils.auth import get_current_client
 class InspectProductUseCase:
     @staticmethod
     def execute(dto: InspectProductDTO):
+        print(4)
         image_url = minio.upload_file(dto.image.stream, dto.image.filename)
+        print(5)
 
         product = ProductRepository.create(
             batch_number=dto.batch_number,
@@ -18,11 +20,15 @@ class InspectProductUseCase:
             image_url=image_url
         )
 
+        print(6)
         image = minio.download_file(image_url)
+        print(7)
 
         ai_result = run_inference(image)
+        print(8)
 
         result = "defective" if ai_result.defects else "intact"
+        print(9)
 
         inspection = InspectionRepository.create(
             product_id=product.id,

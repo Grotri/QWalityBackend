@@ -11,13 +11,16 @@ inspection_bp = Blueprint("inspections", __name__, url_prefix="/inspections")
 @jwt_required()
 def inspect_product():
     try:
+        print(1)
         form = {
             "camera_url": request.url,
             "batch_number": request.form["batch_number"],
             "camera_id": int(request.form["camera_id"]),
             "image": request.files["image"]
         }
+        print(2)
         data = InspectProductDTO(**form)
+        print(3)
 
         inspection, product, ai_result, image_url = InspectProductUseCase.execute(data)
 
