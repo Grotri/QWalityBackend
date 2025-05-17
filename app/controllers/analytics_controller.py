@@ -6,7 +6,7 @@ from flask import request, send_file
 from flask_jwt_extended import jwt_required
 
 from app.models.inspection import Inspection
-from app.usecases.get_analytics_summary import GetAnalyticsSummaryUseCase
+from app.usecases.analytics.get_analytics_summary_usecase import GetAnalyticsSummaryUseCase
 from app.utils.auth import get_current_user
 
 analytics_bp = Blueprint("analytics", __name__, url_prefix="/analytics")
@@ -43,7 +43,7 @@ def export_analytics():
                 "product_id": i.product_id,
                 "result": i.result,
                 "inspected_at": i.inspected_at.strftime("%Y-%m-%d %H:%M"),
-                "user_id": i.user_id,
+                "user_id": i.client_id,
                 "defects": len(i.defects)
             })
 

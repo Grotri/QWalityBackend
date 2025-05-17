@@ -10,5 +10,6 @@ class Product(db.Model):
     batch_number = db.Column(db.String(64), nullable=False)
     camera_id = db.Column(db.Integer, db.ForeignKey("camera.id"), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    image_url = db.Column(db.String(255), nullable=False)
 
     camera = db.relationship("Camera", backref="products")

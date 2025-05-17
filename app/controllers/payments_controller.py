@@ -1,10 +1,10 @@
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required
 
-from app.schemas.payment_create_dto import PaymentCreateDTO
-from app.schemas.payment_webhook_dto import PaymentWebhookDTO
-from app.usecases.create_payment_session import CreatePaymentSessionUseCase
-from app.usecases.handle_payment_webhook import HandlePaymentWebhookUseCase
+from app.schemas.payment.payment_create_dto import PaymentCreateDTO
+from app.schemas.payment.payment_webhook_dto import PaymentWebhookDTO
+from app.usecases.payment.create_payment_session_usecase import CreatePaymentSessionUseCase
+from app.usecases.payment.handle_payment_webhook_usecase import HandlePaymentWebhookUseCase
 from app.utils.role_required import role_required
 
 payments_bp = Blueprint("payments", __name__, url_prefix="/payments")

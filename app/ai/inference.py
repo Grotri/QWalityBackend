@@ -1,8 +1,10 @@
+from PIL.Image import Image
+
 from app.ai.model import yolo_model
 
 
-def run_inference(image_url: str, conf_threshold: float = 0.25):
-    results = yolo_model.predict(source=image_url, conf=conf_threshold, imgsz=416, device="cpu", verbose=False)
+def run_inference(image: Image, conf_threshold: float = 0.25):
+    results = yolo_model.predict(source=image, conf=conf_threshold, imgsz=416, device="cpu", verbose=False)
     detections = []
 
     if not results:

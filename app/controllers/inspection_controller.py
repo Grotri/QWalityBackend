@@ -1,8 +1,8 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required
 
-from app.schemas.inspect_product_dto import InspectProductDTO
-from app.usecases.inspect_product import InspectProductUseCase
+from app.schemas.inspection.inspect_product_dto import InspectProductDTO
+from app.usecases.inspection.inspect_product_usecase import InspectProductUseCase
 
 inspection_bp = Blueprint("inspections", __name__, url_prefix="/inspections")
 
@@ -12,17 +12,14 @@ inspection_bp = Blueprint("inspections", __name__, url_prefix="/inspections")
 def inspect_product():
     try:
         form = {
+            "camera_url": request.url,
             "batch_number": request.form["batch_number"],
             "camera_id": int(request.form["camera_id"]),
             "image": request.files["image"]
         }
         data = InspectProductDTO(**form)
 
-        inspection, product, ai_result, image_url = InspectProductUseCase.execute(
-            batch_number=data.batch_number,
-            camera_id=data.camera_id,
-            image=data.image
-        )
+        inspection, product, ai_result, image_url = InspectProductUseCase.execute(data)
 
         return jsonify({
             "inspection_id": inspection.id,
