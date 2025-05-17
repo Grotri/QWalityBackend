@@ -17,7 +17,7 @@ class GetAnalyticsSummaryUseCase:
         #     .count()
         # )
         total_inspections = (
-            InspectionRepository.get_all_by_client(client_id=client_id)
+            InspectionRepository.get_all_by_client_id(client_id=client_id)
         )
 
         defective_count = (

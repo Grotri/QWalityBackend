@@ -11,7 +11,8 @@ class RegisterClientUseCase:
     @staticmethod
     def execute(dto: ClientRegisterDTO):
         cached_code = cache.get(f"reg_code:{dto.email}")
-        if not cached_code or cached_code != dto.code:
+
+        if int(cached_code) != int(dto.code):
             raise ValueError("Invalid or expired verification code")
 
         if Client.query.filter_by(email=dto.email).first():

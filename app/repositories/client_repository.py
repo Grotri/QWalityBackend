@@ -1,15 +1,11 @@
-from app.models import Client, User
 from app.extensions import db
+from app.models import Client
 
 
 class ClientRepository:
     @staticmethod
     def get_by_id(client_id: int) -> Client | None:
         return Client.query.get(client_id)
-
-    @staticmethod
-    def get_by_user(user: User) -> Client | None:
-        return Client.query.filter_by()
 
     @staticmethod
     def get_by_email(email: str) -> Client | None:
