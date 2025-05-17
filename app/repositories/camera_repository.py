@@ -1,5 +1,5 @@
-from app.models import Camera
 from app.extensions import db
+from app.models import Camera
 from app.utils.auth import get_current_client
 
 
@@ -9,15 +9,15 @@ class CameraRepository:
         return Camera.query.get(camera_id)
 
     @staticmethod
-    def get_all_by_client(client_id: int) -> list[Camera]:
+    def get_all_by_client_id(client_id: int) -> list[Camera]:
         return Camera.query.filter_by(client_id=client_id).all()
 
     @staticmethod
-    def get_active_by_client(client_id: int) -> list[Camera]:
-        return Camera.query.filter_by(client_id=client_id, status="active").all()
+    def get_all_by_client_id_and_status(client_id: int) -> list[Camera]:
+        return Camera.query.filter_by(client_id=client_id).all()
 
     @staticmethod
-    def create(name: str, camera_url: str, client_id: int = get_current_client(), status: str = "active") -> Camera:
+    def create(name: str, camera_url: str, client_id: int, status: str = "active") -> Camera:
         camera = Camera(
             name=name,
             camera_url=camera_url,

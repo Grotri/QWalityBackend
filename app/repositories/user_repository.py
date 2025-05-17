@@ -33,7 +33,7 @@ class UserRepository:
         if not user:
             raise ValueError("User not found")
 
-        allowed_fields = {"email", "hashed_password", "role", "client_id"}
+        allowed_fields = {"email", "hashed_password", "role", "client_id", "color_theme", "font_size"}
         for key, value in kwargs.items():
             if key in allowed_fields:
                 setattr(user, key, value)

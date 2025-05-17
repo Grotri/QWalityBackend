@@ -1,15 +1,14 @@
-import random
-
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_token
-from flask_mail import Message
 
-from app.extensions import mail, cache
-from app.models import Client
+from app.schemas.auth.reset_password_confirm_dto import ResetPasswordConfirmDTO
+from app.schemas.auth.reset_password_request_dto import ResetPasswordRequestDTO
+from app.schemas.auth.send_registration_code_dto import SendRegistrationCodeDTO
 from app.schemas.user.user_login_dto import UserLoginDTO
+from app.usecases.auth.request_password_reset_usecase import RequestPasswordResetUseCase
+from app.usecases.auth.reset_password_confirm_usecase import ResetPasswordConfirmUseCase
+from app.usecases.auth.send_registration_code_usecase import SendRegistrationCodeUsecase
 from app.usecases.user.login_user_usecase import LoginUserUseCase
-from app.usecases.client.request_password_reset_usecase import RequestPasswordResetUseCase
-from app.usecases.client.reset_password_confirm_usecase import ResetPasswordConfirmUseCase
 
 auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
 
@@ -39,32 +38,20 @@ def login():
 
 @auth_bp.route("/send-registration-code", methods=["POST"])
 def send_registration_code():
-    email = request.json.get("email")
-    if not email:
-        return jsonify({"error": "Email обязателен"}), 400
+    try:
+        data = SendRegistrationCodeDTO(**request.json)
+        SendRegistrationCodeUsecase.execute(data)
 
-    # Пример проверки существующего пользователя
-    if Client.query.filter_by(email=email).first():
-        return jsonify({"error": "Пользователь уже существует"}), 400
-
-    code = str(random.randint(100000, 999999))
-    cache.set(f"reg_code:{email}", code, timeout=300)  # 5 минут
-
-    msg = Message(
-        subject="Подтверждение почты",
-        recipients=[email],
-        body=f"Ваш код подтверждения регистрации: {code}"
-    )
-    mail.send(msg)
-
-    return jsonify({"message": "Код отправлен"}), 200
+        return jsonify({"message": "Код отправлен"}), 200
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
 
 
 @auth_bp.route("/reset-password-request", methods=["POST"])
 def request_reset():
     try:
-        email = request.json.get("email")
-        RequestPasswordResetUseCase.execute(email)
+        data = ResetPasswordRequestDTO(**request.json)
+        RequestPasswordResetUseCase.execute(data)
         return jsonify({"message": "Письмо отправлено"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 400
@@ -73,10 +60,8 @@ def request_reset():
 @auth_bp.route("/reset-password-confirm", methods=["POST"])
 def confirm_reset():
     try:
-        email = request.json.get("email")
-        code = request.json.get("code")
-        new_password = request.json.get("new_password")
-        ResetPasswordConfirmUseCase.execute(email, code, new_password)
+        data = ResetPasswordConfirmDTO(**request.json)
+        ResetPasswordConfirmUseCase.execute(data)
         return jsonify({"message": "Пароль обновлён"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 400

@@ -2,13 +2,15 @@ import os
 import uuid
 from io import BytesIO
 
+from PIL import Image
 from minio import Minio
 
 
 class MinioClient:
     def __init__(self):
+        self.endpoint = os.getenv("MINIO_ENDPOINT", "localhost:9000")
         self.client = Minio(
-            os.getenv("MINIO_ENDPOINT", "localhost:9000"),
+            self.endpoint,
             access_key=os.getenv("MINIO_ACCESS_KEY"),
             secret_key=os.getenv("MINIO_SECRET_KEY"),
             secure=False
@@ -30,23 +32,38 @@ class MinioClient:
             part_size=10 * 1024 * 1024,
             content_type=content_type
         )
-        return f"http://{self.client._endpoint}/{self.bucket}/{object_name}"
+        return f"http://{self.endpoint}/{self.bucket}/{object_name}"
 
-    from io import BytesIO
-
-    def download_file(self, object_url: str) -> BytesIO:
-        # Извлекаем object_name из URL
-        prefix = f"http://{self.client._endpoint}/{self.bucket}/"
+    # def download_file(self, object_url: str) -> BytesIO:
+    def download_file(self, object_url: str) -> Image.Image:
+        prefix = f"http://{self.endpoint}/{self.bucket}/"
         if not object_url.startswith(prefix):
             raise ValueError("Invalid object URL")
 
         object_name = object_url[len(prefix):]
-
-        response = self.client.get_object(self.bucket, object_name)
-        return BytesIO(response.read())
+        # response = self.client.get_object(self.bucket, object_name)
+        # return BytesIO(response.read())
+        response = None
+        try:
+            response = self.client.get_object(self.bucket, object_name)
+            # Читаем данные и создаем BytesIO
+            data = BytesIO(response.read())
+            # Открываем изображение с помощью PIL
+            image = Image.open(data)
+            # Проверяем, что файл является валидным изображением
+            image.verify()
+            # Переоткрываем BytesIO, так как verify() может сбросить указатель
+            data.seek(0)
+            return Image.open(data)
+        except Exception as e:
+            raise ValueError(f"Failed to load image from MinIO: {e}")
+        finally:
+            if response:
+                response.close()
+                response.release_conn()
 
     def delete_file(self, object_url: str):
-        prefix = f"http://{self.client._endpoint}/{self.bucket}/"
+        prefix = f"http://{self.endpoint}/{self.bucket}/"
         if not object_url.startswith(prefix):
             raise ValueError("Invalid object URL")
 
