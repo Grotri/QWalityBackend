@@ -11,7 +11,7 @@ from app.usecases.inspection.inspect_product_usecase import InspectProductUseCas
 inspection_bp = Blueprint("inspections", __name__, url_prefix="/inspections")
 
 
-@inspection_bp.route("/", methods=["POST"])
+@inspection_bp.route("/real/", methods=["POST"])
 @jwt_required()
 def inspect_product():
     try:
