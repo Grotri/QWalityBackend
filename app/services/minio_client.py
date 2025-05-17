@@ -34,25 +34,18 @@ class MinioClient:
         )
         return f"http://{self.endpoint}/{self.bucket}/{object_name}"
 
-    # def download_file(self, object_url: str) -> BytesIO:
     def download_file(self, object_url: str) -> Image.Image:
         prefix = f"http://{self.endpoint}/{self.bucket}/"
         if not object_url.startswith(prefix):
             raise ValueError("Invalid object URL")
 
         object_name = object_url[len(prefix):]
-        # response = self.client.get_object(self.bucket, object_name)
-        # return BytesIO(response.read())
         response = None
         try:
             response = self.client.get_object(self.bucket, object_name)
-            # Читаем данные и создаем BytesIO
             data = BytesIO(response.read())
-            # Открываем изображение с помощью PIL
             image = Image.open(data)
-            # Проверяем, что файл является валидным изображением
             image.verify()
-            # Переоткрываем BytesIO, так как verify() может сбросить указатель
             data.seek(0)
             return Image.open(data)
         except Exception as e:
