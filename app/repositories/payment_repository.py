@@ -1,6 +1,7 @@
 from app.models import Payment
 from app.extensions import db
 from datetime import datetime
+from typing import Dict, Any
 
 
 class PaymentRepository:
@@ -49,6 +50,26 @@ class PaymentRepository:
         if confirmed_at:
             payment.confirmed_at = confirmed_at
 
+        db.session.commit()
+        return payment
+
+    @staticmethod
+    def update_payment_data(payment_id: int, data: Dict[str, Any]) -> Payment:
+        """
+        Обновляет данные платежа
+        :param payment_id: ID платежа
+        :param data: Словарь с данными для обновления
+        :return: Обновленный платеж
+        """
+        payment = PaymentRepository.get_by_id(payment_id)
+        if not payment:
+            raise ValueError("Payment not found")
+            
+        # Обновляем все переданные поля
+        for key, value in data.items():
+            if hasattr(payment, key):
+                setattr(payment, key, value)
+        
         db.session.commit()
         return payment
 
