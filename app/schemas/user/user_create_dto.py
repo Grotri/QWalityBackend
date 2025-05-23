@@ -1,10 +1,10 @@
 from typing import Literal
 
-from pydantic import BaseModel, EmailStr, constr
+from pydantic import BaseModel, constr
 
 
 class UserCreateDTO(BaseModel):
-    email: EmailStr
+    login: str
     password: constr(min_length=6)
     role: Literal["user", "admin", "moderator"] = "user"
     color_theme: str = "dark"

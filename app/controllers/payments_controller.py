@@ -1,11 +1,13 @@
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required
+import subprocess
 
 from app.schemas.payment.payment_create_dto import PaymentCreateDTO
 from app.schemas.payment.payment_webhook_dto import PaymentWebhookDTO
 from app.services.freekassa_client import FreeKassaClient
 from app.usecases.payment.create_payment_session_usecase import CreatePaymentSessionUseCase
 from app.usecases.payment.handle_payment_webhook_usecase import HandlePaymentWebhookUseCase
+from app.utils.auth import get_current_client
 from app.utils.role_required import role_required
 
 payments_bp = Blueprint("payments", __name__, url_prefix="/payments")
@@ -166,3 +168,32 @@ def create_withdrawal():
         return jsonify({"result": result}), 201
     except Exception as e:
         return jsonify({"error": str(e)}), 400
+
+
+@payments_bp.route("/seed-dev", methods=["GET"])
+@jwt_required()
+@role_required("owner")
+def seed_dev_payments():
+    try:
+        current_client = get_current_client()
+        if not current_client:
+            return jsonify({"error": "Client not found for current user"}), 404
+
+        client_id = current_client.id
+        
+        # Формируем команду. Убедитесь, что flask доступен в PATH или укажите полный путь.
+        # Также, возможно, потребуется указать окружение, если команда 'flask' запускается в контексте venv.
+        command = f"flask seed-dev --client-id={client_id}"
+        
+        # Выполняем команду
+        # Важно: subprocess.run() блокирует выполнение, пока команда не завершится.
+        # Для длительных задач лучше использовать subprocess.Popen() или выполнять в фоновом потоке/задаче.
+        result = subprocess.run(command, shell=True, capture_output=True, text=True, check=False)
+
+        if result.returncode == 0:
+            return jsonify({"message": "Seed command executed successfully", "output": result.stdout}), 200
+        else:
+            return jsonify({"error": "Failed to execute seed command", "details": result.stderr, "stdout": result.stdout}), 500
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
