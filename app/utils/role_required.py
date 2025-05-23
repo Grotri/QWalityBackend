@@ -11,10 +11,15 @@ def role_required(*allowed_roles):
         @wraps(fn)
         @jwt_required()
         def wrapper(*args, **kwargs):
-            user = get_current_user()
-            if user.role not in allowed_roles:
-                return jsonify({"error": "Access forbidden"}), 403
-            return fn(*args, **kwargs)
+            try:
+                user = get_current_user()
+                if user.role not in allowed_roles:
+                    return jsonify({"error": "У вас нет доступа к этому ресурсу"}), 403
+                return fn(*args, **kwargs)
+            except ValueError as e:
+                return jsonify({"error": str(e)}), 401
+            except Exception as e:
+                return jsonify({"error": "Ошибка авторизации"}), 500
 
         return wrapper
 

@@ -6,7 +6,10 @@ from app.repositories.user_repository import UserRepository
 
 def get_current_user():
     user_id = get_jwt_identity()
-    return UserRepository.get_by_id(user_id)
+    user = UserRepository.get_by_id(user_id)
+    if not user:
+        raise ValueError("User not found")
+    return user
 
 
 def get_current_client():

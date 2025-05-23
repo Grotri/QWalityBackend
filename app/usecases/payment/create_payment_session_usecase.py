@@ -1,3 +1,4 @@
+import uuid
 from app.repositories.payment_repository import PaymentRepository
 from app.repositories.tariff_repository import TariffRepository
 from app.services.freekassa_client import FreeKassaClient
@@ -15,21 +16,27 @@ class CreatePaymentSessionUseCase:
         if not tariff:
             raise ValueError("Tariff not found.")
 
-        client = FreeKassaClient()
-        payment_url = client.create_payment_url(
-            amount=tariff.price,
-            order_id=user.client_id,  # например, client_id используем как ID заказа
-            description=f"Оплата тарифа {tariff.name}"
-        )
-
+        # Генерируем уникальный ID для платежа
+        payment_uid = str(uuid.uuid4())
+        
+        # Создаем запись о платеже в БД
         payment = PaymentRepository.create(
             client_id=user.client_id,
             tariff_id=tariff.id,
-            payment_uid="check line 30 in create_payment_session_usecase.py",  # todo: Это ошибка-затычка, так быть не должно
+            payment_uid=payment_uid,
             amount=tariff.price
+        )
+
+        # Создаем ссылку на оплату
+        client = FreeKassaClient()
+        payment_url = client.create_payment_url(
+            amount=tariff.price,
+            order_id=payment.id,  # используем ID платежа из БД вместо client_id
+            description=f"Оплата тарифа {tariff.name}"
         )
 
         return {
             "payment_url": payment_url,
+            "payment_id": payment.id,
             "amount": tariff.price
         }
