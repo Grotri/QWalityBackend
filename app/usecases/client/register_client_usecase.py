@@ -27,7 +27,7 @@ class RegisterClientUseCase:
         )
 
         UserRepository.create(
-            email=dto.email,
+            login=dto.email,
             hashed_password=generate_password_hash(dto.password),
             role="owner",
             client_id=new_client.id

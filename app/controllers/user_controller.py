@@ -21,7 +21,7 @@ def update_role(user_id):
         user = UpdateUserRoleUseCase.execute(user_id, data)
         return jsonify({
             "id": user.id,
-            "email": user.email,
+            "login": user.login,
             "role": user.role
         })
     except PermissionError as e:
@@ -41,7 +41,7 @@ def create_sub_account():
         user = CreateSubUserUseCase.execute(data)
         return jsonify({
             "id": user.id,
-            "email": user.email,
+            "login": user.login,
             "role": user.role
         }), 201
     except PermissionError as e:
@@ -59,7 +59,8 @@ def list_users():
     return jsonify([
         {
             "id": u.id,
-            "email": u.email,
+            "login": u.login,
+            "hashed_password": u.hashed_password,
             "role": u.role,
             "color_theme": u.color_theme,
             "font_size": u.font_size
@@ -71,13 +72,18 @@ def list_users():
 @jwt_required()
 def get_me():
     u = get_current_user()
-    return jsonify({
+    response_data = {
         "id": u.id,
-        "email": u.email,
+        "login": u.login,
         "role": u.role,
         "color_theme": u.color_theme,
         "font_size": u.font_size
-    })
+    }
+    if u.role == "owner":
+        client = get_current_client()
+        if client:
+            response_data["tin"] = client.tin
+    return jsonify(response_data)
 
 
 @user_bp.route("/<int:user_id>", methods=["DELETE"])

@@ -14,7 +14,7 @@ class CreateSubUserUseCase:
             raise PermissionError("you can't create sub-users")
 
         new_user = UserRepository.create(
-            email=data.email,
+            login=data.login,
             hashed_password=generate_password_hash(data.password),
             role=data.role,
             client_id=current_user.client_id,

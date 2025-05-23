@@ -8,7 +8,7 @@ from app.schemas.user.user_login_dto import UserLoginDTO
 class LoginUserUseCase:
     @staticmethod
     def execute(data: UserLoginDTO):
-        user = UserRepository.get_by_email(data.email)
+        user = UserRepository.get_by_login(data.login)
         if not user or not check_password_hash(user.hashed_password, data.password):
             raise ValueError("Invalid credentials")
         answer_dict = {
