@@ -13,7 +13,11 @@ class ResetPasswordConfirmUseCase:
         if int(expected_code) != int(dto.code):
             raise ValueError("Неверный код")
 
-        user = UserRepository.get_by_email(dto.email)
+        user = UserRepository.get_by_login(dto.email)
+
+        if not user:
+            raise ValueError("User not found")
+
         UserRepository.update(
             user.id,
             hashed_password=generate_password_hash(dto.new_password)
