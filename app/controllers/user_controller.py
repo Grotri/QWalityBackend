@@ -60,7 +60,6 @@ def list_users():
         {
             "id": u.id,
             "login": u.login,
-            "hashed_password": u.hashed_password,
             "role": u.role,
             "color_theme": u.color_theme,
             "font_size": u.font_size
